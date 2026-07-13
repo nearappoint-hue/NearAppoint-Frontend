@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="60 40 400 400" width="64" height="64" role="img" aria-label="NearAppoint">
+  <title>NearAppoint</title>
+
+  <defs>
+    <linearGradient id="naOrange" x1="18%" y1="4%" x2="78%" y2="98%">
+      <stop offset="0%"   stop-color="#FB8B36"/>
+      <stop offset="52%"  stop-color="#F97316"/>
+      <stop offset="100%" stop-color="#F25E06"/>
+    </linearGradient>
+
+    <!-- Knocks the clock face and the badge gap out of the pin, so both are
+         genuinely transparent and the mark sits on any background. -->
+    <mask id="naCut">
+      <rect width="512" height="512" fill="#fff"/>
+      <circle cx="295" cy="182" r="92" fill="#000"/>
+      <circle cx="412" cy="132" r="49" fill="#000"/>
+    </mask>
+  </defs>
+
+  <!-- ground shadow -->
+
+  <!-- speed lines -->
+  <g stroke="url(#naOrange)" stroke-width="22" stroke-linecap="round" fill="none">
+    <path d="M106 157 H173"/>
+    <path d="M73 200 H144"/>
+    <path d="M109 241 H155"/>
+  </g>
+
+  <!-- pin: circular head, tangent taper to the tip -->
+  <path d="M190.2 258.8 A130 130 0 1 1 399.8 258.8 L295 402 Z"
+        fill="url(#naOrange)" mask="url(#naCut)"/>
+
+  <!-- clock hands -->
+  <path d="M295 120 V182 L343 217" fill="none" stroke="#16243E"
+        stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- hour markers -->
+  <g fill="#F97316">
+    <circle cx="295" cy="102" r="9"/>
+    <circle cx="375" cy="182" r="9"/>
+    <circle cx="295" cy="262" r="9"/>
+    <circle cx="215" cy="182" r="9"/>
+  </g>
+
+  <!-- verified badge -->
+  <circle cx="412" cy="132" r="42" fill="#16243E"/>
+  <path d="M394 132 L407 145 L431 118" fill="none" stroke="#FFFFFF"
+        stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 260" width="1000" height="260" role="img" aria-label="NearAppoint — Find. Book. Arrive.">
+  <title>NearAppoint</title>
+  <desc>Standalone horizontal lockup for social cards, email signatures and print.
+        The website uses logo-mark.svg plus live HTML text instead, so the wordmark
+        renders in the real display face.</desc>
+
+  <defs>
+    <linearGradient id="lkOrange" x1="18%" y1="4%" x2="78%" y2="98%">
+      <stop offset="0%" stop-color="#FB8B36"/>
+      <stop offset="52%" stop-color="#F97316"/>
+      <stop offset="100%" stop-color="#F25E06"/>
+    </linearGradient>
+    <mask id="lkCut">
+      <rect width="1000" height="260" fill="#fff"/>
+      <circle cx="148" cy="112" r="53" fill="#000"/>
+      <circle cx="216" cy="83" r="28" fill="#000"/>
+    </mask>
+  </defs>
+
+  <!-- mark (scaled from logo-mark.svg) -->
+  <g stroke="url(#lkOrange)" stroke-width="12.7" stroke-linecap="round" fill="none">
+    <path d="M38 97 H77"/>
+    <path d="M19 122 H60"/>
+    <path d="M40 145 H67"/>
+  </g>
+  <path d="M87.7 156.4 A75 75 0 1 1 208.3 156.4 L148 239 Z"
+        fill="url(#lkOrange)" mask="url(#lkCut)"/>
+  <path d="M148 76 V112 L175.7 132.2" fill="none" stroke="#16243E"
+        stroke-width="9.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#F97316">
+    <circle cx="148" cy="66" r="5.2"/><circle cx="194" cy="112" r="5.2"/>
+    <circle cx="148" cy="158" r="5.2"/><circle cx="102" cy="112" r="5.2"/>
+  </g>
+  <circle cx="216" cy="83" r="24" fill="#16243E"/>
+  <path d="M205.6 83 L213.1 90.5 L226.9 74.9" fill="none" stroke="#FFFFFF"
+        stroke-width="6.3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- wordmark. Falls back to a geometric system face if Bricolage is absent. -->
+  <text x="272" y="132"
+        font-family="'Bricolage Grotesque','Poppins','Segoe UI',system-ui,sans-serif"
+        font-size="96" font-weight="800" letter-spacing="-3">
+    <tspan fill="#16243E">Near</tspan><tspan fill="#F97316">Appoint</tspan>
+  </text>
+
+  <!-- tagline, with the rules from the brand -->
+  <g stroke="#F97316" stroke-width="3" stroke-linecap="round">
+    <path d="M276 178 H322"/>
+    <path d="M770 178 H816"/>
+  </g>
+  <text x="546" y="187" text-anchor="middle"
+        font-family="'Bricolage Grotesque','Poppins','Segoe UI',system-ui,sans-serif"
+        font-size="27" font-weight="600" letter-spacing="7.5" fill="#16243E">
+    FIND<tspan fill="#F97316">.</tspan> BOOK<tspan fill="#F97316">.</tspan> ARRIVE<tspan fill="#F97316">.</tspan>
+  </text>
+</svg>
