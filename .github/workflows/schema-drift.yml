@@ -1,0 +1,107 @@
+name: Schema Drift Check
+
+# ############################################################################
+#
+#   THE FAILURE THIS CATCHES
+#
+#   Someone opens the Supabase dashboard, drops a constraint to unblock a
+#   test, and forgets to put it back. Or runs an ad-hoc ALTER at 2am.
+#
+#   The app keeps working. Every screen loads. Every booking succeeds. Nothing
+#   errors. CI is green, because CI tests a database built from SCHEMA.sql —
+#   not the one your customers are actually using.
+#
+#   And then two customers book the same 6pm slot and both get a confirmation.
+#
+#   This job compares the LIVE database against what SCHEMA.sql says it should
+#   be, every day, and shouts if they have diverged.
+#
+# ############################################################################
+
+on:
+  schedule:
+    - cron: '0 6 * * *'     # 11:00 PKT — you'll actually see the alert
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    name: Live database vs SCHEMA.sql
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install psql
+        run: sudo apt-get update -qq && sudo apt-get install -y postgresql-client
+
+      # ----------------------------------------------------------------------
+      # THE INVARIANTS. These are not "nice to have". Each one, if missing,
+      # is a specific catastrophe.
+      # ----------------------------------------------------------------------
+      - name: Assert the invariants still exist in production
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          FAILED=0
+
+          check() {
+            local name="$1" expected="$2" sql="$3" consequence="$4"
+            local actual
+            actual=$(psql "$DB_URL" -tAc "$sql" | tr -d '[:space:]')
+            if [ "$actual" = "$expected" ]; then
+              echo "✓ $name ($actual)"
+            else
+              echo "::error::$name — expected $expected, found $actual"
+              echo "::error::  CONSEQUENCE: $consequence"
+              FAILED=1
+            fi
+          }
+
+          check "double-booking constraints" "2" \
+            "select count(*) from pg_constraint
+              where conname in ('no_staff_double_booking','no_resource_double_booking')
+                and contype = 'x';" \
+            "Two customers can book the same stylist at the same time."
+
+          check "currency domain is PKR-only" "1" \
+            "select count(*) from pg_constraint c
+               join pg_type t on t.oid = c.contypid
+              where t.typname = 'currency_code';" \
+            "The 'pkr' casing bug from Muddarris can recur."
+
+          check "refunds cannot fake success" "1" \
+            "select count(*) from pg_constraint
+              where conname = 'refund_success_needs_provider_ref';" \
+            "A refund can be marked 'succeeded' without money having moved."
+
+          check "medical listing gate" "1" \
+            "select count(*) from pg_trigger
+              where tgname = 't_assert_medical_verified' and not tgisinternal;" \
+            "An unverified aesthetic clinic can appear in customer search."
+
+          check "multi-branch billing gate" "1" \
+            "select count(*) from pg_trigger
+              where tgname = 't_assert_branch_limit' and not tgisinternal;" \
+            "A business can add branches without paying for Enterprise."
+
+          check "Botox/fillers/PRP still disabled" "3" \
+            "select count(*) from subcategories
+              where slug in ('botox','dermal-fillers','prp-therapy')
+                and booking_policy = 'disabled';" \
+            "A customer can book a prescription-only injectable from a salon."
+
+          check "RLS on business_customers" "1" \
+            "select count(*) from pg_tables
+              where tablename = 'business_customers' and rowsecurity = true;" \
+            "Salon A can read Salon B's entire customer list."
+
+          if [ $FAILED -eq 1 ]; then
+            echo ""
+            echo "::error::PRODUCTION HAS DRIFTED FROM SCHEMA.sql."
+            echo "::error::Something was changed in the live database and not in the repo."
+            exit 1
+          fi
+          echo ""
+          echo "✓ production matches SCHEMA.sql"

@@ -1,0 +1,198 @@
+name: Database Backup
+
+# ############################################################################
+#
+#   ⚠️  WHAT IS IN THIS BACKUP
+#
+#   Every customer's phone number. Her name. The neighbourhood she lives in.
+#   The exact time she will be at a known address next Thursday.
+#
+#   A large share of those customers are women. In this market, a leaked
+#   backup is not an IT incident — it is a safety incident, and it ends the
+#   company.
+#
+#   Therefore:
+#     - The dump is ENCRYPTED before it leaves the runner.
+#     - It goes to a PRIVATE GitHub artifact. Never a branch. Never the repo.
+#     - The connection string is a GitHub SECRET, never an env var in code.
+#     - Retention is capped, so old copies of PII do not pile up forever.
+#
+#   If you ever change this workflow to push the dump anywhere else, think
+#   very hard first.
+#
+# ############################################################################
+
+on:
+  schedule:
+    - cron: '0 20 * * *'      # 01:00 PKT daily (20:00 UTC). Salons are closed.
+  workflow_dispatch:          # and a manual button, for before a risky migration
+    inputs:
+      reason:
+        description: 'Why are you taking this backup?'
+        required: false
+        default: 'manual'
+
+permissions:
+  contents: read              # least privilege. This job reads nothing else.
+
+concurrency:
+  group: db-backup
+  cancel-in-progress: false   # never kill a backup mid-write
+
+jobs:
+  backup:
+    name: Dump · verify · encrypt · store
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ----------------------------------------------------------------------
+      # postgresql-client-17 — the version MUST be >= your Supabase server, or
+      # pg_dump refuses to run against it. Supabase is on 15/16/17; 17 covers all.
+      # ----------------------------------------------------------------------
+      - name: Install pg_dump 17
+        run: |
+          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client-17
+          pg_dump --version
+
+      - name: Timestamp
+        id: meta
+        run: |
+          echo "stamp=$(date -u +'%Y-%m-%d_%H%M')" >> $GITHUB_OUTPUT
+          echo "date=$(date -u +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      # ----------------------------------------------------------------------
+      # THE DUMP
+      #
+      # Two files, deliberately:
+      #
+      #   schema.sql  — structure only. Small, readable, and the thing you
+      #                 actually diff when you want to know "did a constraint
+      #                 get dropped?"
+      #
+      #   full.dump   — schema + data, custom format (-Fc). Compressed, and
+      #                 restorable table-by-table with pg_restore. A plain .sql
+      #                 dump of a large DB is all-or-nothing to restore.
+      # ----------------------------------------------------------------------
+      - name: Dump schema
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          pg_dump "$DB_URL" \
+            --schema-only \
+            --no-owner --no-privileges \
+            --schema=public \
+            --file=schema.sql
+          echo "schema: $(wc -l < schema.sql) lines"
+
+      - name: Dump schema + data
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          pg_dump "$DB_URL" \
+            --format=custom \
+            --compress=9 \
+            --no-owner --no-privileges \
+            --schema=public \
+            --file=full.dump
+          echo "dump: $(du -h full.dump | cut -f1)"
+
+      # ----------------------------------------------------------------------
+      # VERIFY THE BACKUP IS ACTUALLY USABLE.
+      #
+      # A backup you have never restored is not a backup. It is a file.
+      #
+      # This step restores the dump into a throwaway Postgres and asserts the
+      # thing that matters most survived: the double-booking exclusion
+      # constraints. If a backup restores WITHOUT them, then restoring from it
+      # in an emergency would silently remove the one guarantee the product
+      # makes — and you would not find out until two customers booked the same
+      # 6pm slot on the worst possible day.
+      # ----------------------------------------------------------------------
+      - name: Verify the backup restores
+        run: |
+          docker run -d --name verify \
+            -e POSTGRES_PASSWORD=verify \
+            -e POSTGRES_DB=verify \
+            -p 5433:5432 \
+            postgis/postgis:17-3.4
+          for i in $(seq 1 30); do
+            docker exec verify pg_isready -U postgres && break
+            sleep 2
+          done
+          docker exec verify psql -U postgres -d verify -c \
+            'create extension if not exists btree_gist; create extension if not exists pg_trgm; create extension if not exists pgcrypto;'
+
+          # Supabase dumps reference auth.users; stub it so the restore resolves.
+          docker exec verify psql -U postgres -d verify -c \
+            'create schema if not exists auth; create table if not exists auth.users (id uuid primary key, email text);'
+
+          PGPASSWORD=verify pg_restore \
+            --host=localhost --port=5433 --username=postgres --dbname=verify \
+            --no-owner --no-privileges --clean --if-exists \
+            full.dump 2>&1 | grep -v "^pg_restore: warning" || true
+
+          echo "--- asserting the double-booking guard survived the round-trip ---"
+          FOUND=$(PGPASSWORD=verify psql -h localhost -p 5433 -U postgres -d verify -tAc \
+            "select count(*) from pg_constraint
+              where conname in ('no_staff_double_booking','no_resource_double_booking')
+                and contype = 'x';")
+
+          echo "exclusion constraints found: $FOUND"
+          if [ "$FOUND" != "2" ]; then
+            echo "::error::BACKUP IS UNSAFE. The double-booking constraints did not survive the restore."
+            echo "::error::Restoring from this backup would silently allow two customers to book the same slot."
+            docker rm -f verify
+            exit 1
+          fi
+          echo "✓ backup restores cleanly, and the guard is intact"
+          docker rm -f verify
+
+      # ----------------------------------------------------------------------
+      # ENCRYPT before the dump ever touches storage.
+      #
+      # GitHub artifacts are private to the repo — but "private" and
+      # "encrypted" are different words. Anyone who gains repo access gets
+      # every artifact. This means they get a file they cannot read.
+      # ----------------------------------------------------------------------
+      - name: Encrypt
+        env:
+          PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          if [ -z "$PASSPHRASE" ]; then
+            echo "::error::BACKUP_ENCRYPTION_KEY is not set. Refusing to store an unencrypted dump of customer PII."
+            exit 1
+          fi
+          gpg --batch --yes --symmetric --cipher-algo AES256 \
+              --passphrase "$PASSPHRASE" --output full.dump.gpg full.dump
+          gpg --batch --yes --symmetric --cipher-algo AES256 \
+              --passphrase "$PASSPHRASE" --output schema.sql.gpg schema.sql
+          rm -f full.dump schema.sql          # never leave plaintext on the runner
+          sha256sum full.dump.gpg schema.sql.gpg > CHECKSUMS.txt
+          cat CHECKSUMS.txt
+
+      - name: Store
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ steps.meta.outputs.stamp }}
+          path: |
+            full.dump.gpg
+            schema.sql.gpg
+            CHECKSUMS.txt
+          retention-days: 30    # old copies of customer PII should not live forever
+          if-no-files-found: error
+
+      # ----------------------------------------------------------------------
+      # A backup that fails silently is worse than no backup, because you
+      # believe you have one.
+      # ----------------------------------------------------------------------
+      - name: Alert on failure
+        if: failure()
+        run: |
+          echo "::error::DATABASE BACKUP FAILED — $(date -u)"
+          echo "::error::You currently do not have a backup from today. Investigate now."

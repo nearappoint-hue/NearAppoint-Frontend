@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  # ==========================================================================
+  code:
+  # ==========================================================================
+    name: typecheck · lint · unit · build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+
+      # The build itself is a security test.
+      #
+      # `import 'server-only'` means: if any client component imports anything
+      # from src/server/ — directly, or five levels deep — THE BUILD FAILS.
+      #
+      # That is the guarantee that replaced the separate backend repo. Two
+      # repos relied on a human never copy-pasting a key. This relies on the
+      # compiler, which never gets tired at 2am.
+      - name: Build (enforces the server-only boundary)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-long-enough-to-pass
+          NEXT_PUBLIC_SITE_URL: https://www.nearappoint.com
+
+  # ==========================================================================
+  boundaries:
+  # ==========================================================================
+    name: 🔒 architecture boundaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The compiler already blocks client -> server imports. These greps catch
+      # the things the compiler CAN'T see.
+      #
+      # (The `grep -vE ':[[:space:]]*(\*|//|#)'` filter skips comment lines, so
+      #  documentation ABOUT a rule doesn't trip the rule.)
+
+      - name: The service-role key must never be public
+        run: |
+          HITS=$(grep -rn 'NEXT_PUBLIC_SUPABASE_SERVICE\|NEXT_PUBLIC.*SERVICE_ROLE' src/ .env.example || true)
+          if [ -n "$HITS" ]; then
+            echo "$HITS"
+            echo "::error::A NEXT_PUBLIC_ service-role key ships the master key to every visitor."
+            exit 1
+          fi
+          echo "✓ service-role key is server-only"
+
+      - name: The browser must not query the database
+        run: |
+          # Any .from() / .rpc() outside src/server/ and src/app/api/ means
+          # someone bypassed the API layer.
+          HITS=$(grep -rn --include='*.ts' --include='*.tsx' -E '\.(from|rpc)\(' src/ \
+                 | grep -v '^src/server/' \
+                 | grep -v '^src/app/api/' \
+                 | grep -vE ':[[:space:]]*(\*|//|#)' \
+                 | grep -v 'Array\.from' || true)
+          if [ -n "$HITS" ]; then
+            echo "$HITS"
+            echo "::error::Database access outside src/server/. All data goes through /api/v1."
+            exit 1
+          fi
+          echo "✓ no database access outside the server boundary"
+
+      - name: Every file in src/server must be server-only
+        run: |
+          MISSING=""
+          for f in $(find src/server -name '*.ts' ! -name 'types.ts'); do
+            if ! head -3 "$f" | grep -q "import 'server-only'"; then
+              MISSING="$MISSING\n  $f"
+            fi
+          done
+          if [ -n "$MISSING" ]; then
+            echo -e "Missing the server-only guard:$MISSING"
+            echo "::error::Every file in src/server/ must start with: import 'server-only';"
+            exit 1
+          fi
+          echo "✓ every server file is guarded"
+
+  # ==========================================================================
+  invariants:
+  # ==========================================================================
+    name: 🔒 double-booking · tenant-isolation · safety-gates · entitlements
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - run: supabase start
+      - run: supabase db reset      # every migration, from scratch, every time
+      - run: supabase test db
+
+      # These are not "coverage". They are the two failures you do not come
+      # back from:
+      #
+      #   1. Two customers book the same 6pm slot on a Saturday, both get a
+      #      confirmation, and the salon owner returns to her paper register.
+      #
+      #   2. Salon A reads Salon B's customer list — thousands of women's
+      #      names, phone numbers, and the times they'll be at a known address.
+      #
+      #   3. A customer books Botox from a salon, or an unverified clinic
+      #      appears in search. Both are lawsuits with our name on them.
+      #
+      #   4. A Starter customer silently gets Business features for four
+      #      months and you find out from an accountant.
+      #
+      # If any go red, NOTHING merges. Not a hotfix. Not a typo fix.
