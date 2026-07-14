@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   CalendarDays, LayoutDashboard, Users, Scissors, UserCog, Clock,
-  Store, LogOut, Menu, X, Plus,
+  Store, LogOut, Menu, X, Plus, Moon,
 } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { cn } from '@/lib/utils';
@@ -21,14 +21,22 @@ import { cn } from '@/lib/utils';
  * glance, across a room, on a counter tablet, a 4px orange edge reads faster
  * than a colour change.
  */
-const NAV = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  soon?: boolean;
+}
+
+const NAV: NavItem[] = [
   { href: '/today',          label: 'Today',     icon: LayoutDashboard },
   { href: '/calendar',       label: 'Calendar',  icon: CalendarDays },
-  { href: '/customers',      label: 'Customers', icon: Users,    soon: true },
+  { href: '/customers',      label: 'Customers', icon: Users },
   { href: '/services',       label: 'Services',  icon: Scissors },
   { href: '/staff',          label: 'Staff',     icon: UserCog },
   { href: '/settings/hours', label: 'Hours',     icon: Clock },
-  { href: '/settings/profile', label: 'Profile', icon: Store,    soon: true },
+  { href: '/settings/special-hours', label: 'Special hours', icon: Moon },
+  { href: '/settings/profile', label: 'Profile', icon: Store },
 ];
 
 export function BusinessSidebar({ businessName }: { businessName: string }) {

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WalkInDialog } from '@/components/business/walk-in-dialog';
+import { BookingDialog } from '@/components/business/booking-dialog';
 import { Panel } from '@/components/business/panel';
 import { cn } from '@/lib/utils';
 
@@ -103,7 +104,10 @@ export default function CalendarPage() {
         </div>
 
         {staff.length > 0 && groups.length > 0 && (
-          <WalkInDialog groups={groups} staff={staff} onDone={load} />
+          <div className="flex gap-2.5">
+            <BookingDialog groups={groups} staff={staff} onDone={load} />
+            <WalkInDialog groups={groups} staff={staff} onDone={load} />
+          </div>
         )}
       </div>
 

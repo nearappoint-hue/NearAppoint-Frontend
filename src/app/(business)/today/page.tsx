@@ -7,6 +7,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { WalkInDialog } from '@/components/business/walk-in-dialog';
+import { BookingDialog } from '@/components/business/booking-dialog';
 import { PageHeader } from '@/components/business/page-header';
 import { StatCard } from '@/components/business/stat-card';
 import { Panel, Callout, Tag } from '@/components/business/panel';
@@ -72,7 +73,12 @@ export default function TodayPage() {
       <PageHeader
         title="Today"
         subtitle={today}
-        actions={ready ? <WalkInDialog groups={groups} staff={staff} onDone={load} /> : undefined}
+        actions={ready ? (
+          <>
+            <BookingDialog groups={groups} staff={staff} onDone={load} />
+            <WalkInDialog groups={groups} staff={staff} onDone={load} />
+          </>
+        ) : undefined}
       />
 
       {!ready ? (
