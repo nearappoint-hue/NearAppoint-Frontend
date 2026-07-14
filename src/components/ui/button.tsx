@@ -44,17 +44,33 @@ export interface ButtonProps
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, block, asChild, loading, disabled, children, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button';
+    const classes = cn(buttonVariants({ variant, size, block }), className);
+
+    /**
+     * asChild renders through Radix's <Slot>, which merges its props onto its
+     * ONE child. It requires exactly one React element — not an array, not a
+     * fragment, not `[null, children]`.
+     *
+     * That is why the spinner cannot live in this branch: `{loading && <Spinner/>}`
+     * plus `{children}` is two children, and Slot throws
+     * "Slot failed to slot onto its children" AT BUILD TIME, during prerender.
+     *
+     * A link button doesn't need a spinner anyway — navigation isn't an async
+     * action we own. So: asChild = pass the child straight through, untouched.
+     */
+    if (asChild) {
+      return (
+        <Slot ref={ref} className={classes} {...props}>
+          {children}
+        </Slot>
+      );
+    }
+
     return (
-      <Comp
-        ref={ref}
-        className={cn(buttonVariants({ variant, size, block }), className)}
-        disabled={disabled || loading}
-        {...props}
-      >
+      <button ref={ref} className={classes} disabled={disabled || loading} {...props}>
         {loading ? <Spinner /> : null}
         {children}
-      </Comp>
+      </button>
     );
   },
 );

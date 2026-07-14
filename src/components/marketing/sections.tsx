@@ -234,6 +234,13 @@ function DashboardMock() {
 }
 
 /* -------------------------------------------------------------- Mobile App */
+// Typed properly instead of a tuple + @ts-expect-error. A suppressed type error
+// is a bug you have agreed to be surprised by later.
+const STORES = [
+  { icon: Apple, small: 'Download on the', big: 'App Store' },
+  { icon: Play,  small: 'Get it on',       big: 'Google Play' },
+] as const;
+
 export function MobileApp() {
   return (
     <section className="bg-navy py-[84px]">
@@ -245,14 +252,13 @@ export function MobileApp() {
           subtitle="Available on iOS and Android. Download once, book forever — with offline support, smart reminders, and a beautiful interface."
         />
         <div className="mb-11 flex flex-wrap justify-center gap-3">
-          {[[Apple, 'Download on the', 'App Store'], [Play, 'Get it on', 'Google Play']].map(([Icon, small, big], i) => (
-            <a key={i} href="#"
+          {STORES.map(({ icon: Icon, small, big }) => (
+            <a key={big} href="#"
               className="inline-flex items-center gap-2.5 rounded-sm border border-navy-line bg-navy-soft px-[18px] py-2.5 text-white transition-colors hover:border-white/30">
-              {/* @ts-expect-error tuple typing */}
               <Icon className="size-[19px]" />
               <span>
-                <small className="block text-[0.56rem] leading-tight text-white/50">{small as string}</small>
-                <b className="block font-display text-[0.84rem] font-bold leading-tight">{big as string}</b>
+                <small className="block text-[0.56rem] leading-tight text-white/50">{small}</small>
+                <b className="block font-display text-[0.84rem] font-bold leading-tight">{big}</b>
               </span>
             </a>
           ))}
