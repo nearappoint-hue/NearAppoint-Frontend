@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { WalkInDialog } from '@/components/business/walk-in-dialog';
 import { BookingDialog } from '@/components/business/booking-dialog';
 import { AppointmentActions } from '@/components/business/appointment-actions';
+import { AtRiskCard } from '@/components/business/at-risk-card';
 import { PageHeader } from '@/components/business/page-header';
 import { StatCard } from '@/components/business/stat-card';
 import { Panel, Callout, Tag } from '@/components/business/panel';
@@ -107,6 +108,10 @@ export default function TodayPage() {
       ) : (
         /* ---------------- THE DAY ---------------- */
         <>
+          {/* Who probably isn't coming. A 30-second call now is cheaper than
+              an empty chair at 4pm. */}
+          <AtRiskCard />
+
           <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
             <StatCard label="Appointments" value={String(items.length)} />
             <StatCard label="Completed"    value={String(done.length)} />
