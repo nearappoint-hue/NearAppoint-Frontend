@@ -77,7 +77,7 @@ export default function HoursPage() {
   const ordered = [1, 2, 3, 4, 5, 6, 0].map(n => hours.find(h => h.day_of_week === n)!);
 
   return (
-    <div className="mx-auto max-w-[680px]">
+    <div className="w-full">
       <PageHeader
         title="Opening hours"
         subtitle="When your doors are open. The calendar follows these."

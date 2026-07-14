@@ -56,7 +56,7 @@ export default function ServicesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[900px]">
+    <div className="w-full">
       <PageHeader
         title="Services"
         subtitle={total === 0 ? 'Your menu is empty.' : `${total} services`}

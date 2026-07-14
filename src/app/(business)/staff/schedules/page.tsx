@@ -111,7 +111,7 @@ export default function SchedulesPage() {
 
   if (rows.length === 0) {
     return (
-      <div className="mx-auto max-w-[900px]">
+      <div className="w-full">
         <PageHeader title="Staff schedules" />
         <Callout className="py-14 text-center">
           <h2 className="mb-2 text-[1.25rem]">Add your staff first.</h2>
@@ -126,7 +126,7 @@ export default function SchedulesPage() {
   const current = rows.find(r => r.id === sel);
 
   return (
-    <div className="mx-auto max-w-[1040px]">
+    <div className="w-full">
       <PageHeader
         title="Staff schedules"
         subtitle="Who works when. Leave this alone if everyone works your normal hours."

@@ -72,7 +72,7 @@ export default function TodayPage() {
   });
 
   return (
-    <div className="mx-auto max-w-[900px]">
+    <div className="w-full">
       <PageHeader
         title="Overview"
         subtitle={today}

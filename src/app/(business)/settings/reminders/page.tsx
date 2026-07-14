@@ -90,7 +90,7 @@ export default function RemindersPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[900px]">
+    <div className="w-full">
       <PageHeader
         title="WhatsApp reminders"
         subtitle="The only thing standing between you and an empty chair."

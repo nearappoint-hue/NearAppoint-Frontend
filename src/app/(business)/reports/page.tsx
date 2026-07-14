@@ -87,7 +87,7 @@ export default function ReportsPage() {
   const hasData = (s?.appointments ?? 0) > 0;
 
   return (
-    <div className="mx-auto max-w-[1100px]">
+    <div className="w-full">
       <PageHeader
         title="Reports"
         subtitle="What actually happened, and when."

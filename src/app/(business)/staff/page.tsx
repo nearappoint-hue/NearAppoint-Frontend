@@ -47,7 +47,7 @@ export default function StaffPage() {
    */
   if (allServices.length === 0) {
     return (
-      <div className="mx-auto max-w-[900px]">
+      <div className="w-full">
         <PageHeader title="Staff" />
         <Callout className="py-12 text-center">
           <h2 className="mb-2.5 text-[1.3rem]">Add your services first.</h2>
@@ -64,7 +64,7 @@ export default function StaffPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[900px]">
+    <div className="w-full">
       <PageHeader
         title="Staff"
         subtitle={staff.length === 0 ? 'Nobody added yet.' : `${staff.length} on the team`}

@@ -25,7 +25,10 @@ export default async function BusinessLayout({ children }: { children: React.Rea
     <div className="min-h-screen bg-soft lg:pl-[260px]">
       <BusinessSidebar businessName={business?.display_name ?? 'Your business'} />
       <TopBar ownerName={account.fullName ?? 'Owner'} />
-      <main className="p-5 lg:p-9">{children}</main>
+      {/* Full width. She's on a wide monitor at a counter; boxing the content
+          into 900px in the middle wastes half her screen and makes the calendar
+          harder to read than the paper register she's replacing. */}
+      <main className="w-full p-5 lg:px-9 lg:py-8">{children}</main>
     </div>
   );
 }

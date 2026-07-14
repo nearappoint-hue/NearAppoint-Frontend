@@ -57,7 +57,7 @@ export default function CustomersPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1000px]">
+    <div className="w-full">
       <PageHeader
         title="Customers"
         subtitle={`${total} ${total === 1 ? 'customer' : 'customers'}`}

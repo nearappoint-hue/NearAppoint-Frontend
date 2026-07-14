@@ -124,7 +124,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-[900px]">
+    <div className="w-full">
       <PageHeader
         title="Business profile"
         subtitle="What customers see when they find you."

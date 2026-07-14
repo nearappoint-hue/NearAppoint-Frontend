@@ -57,7 +57,7 @@ export default function SpecialHoursPage() {
   const hasRamadan = rows.some(r => /ramadan/i.test(r.name));
 
   return (
-    <div className="mx-auto max-w-[760px]">
+    <div className="w-full">
       <PageHeader
         title="Special hours"
         subtitle="Ramadan, Eid, and any day that isn't a normal day."

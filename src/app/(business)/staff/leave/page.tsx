@@ -83,7 +83,7 @@ export default function LeavePage() {
   const soon = rows.filter(l => l.is_soon && l.status === 'approved');
 
   return (
-    <div className="mx-auto max-w-[1000px]">
+    <div className="w-full">
       <PageHeader
         title="Leave"
         subtitle="Holidays, sick days, and days off."
