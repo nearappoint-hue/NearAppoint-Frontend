@@ -1,0 +1,37 @@
+# ============================================================================
+# Without this file, your next commit pushes:
+#
+#   node_modules/   40,000 files. GitHub rejects the push.
+#   .env.local      YOUR SUPABASE_SERVICE_ROLE_KEY.
+#
+# That key bypasses row-level security entirely. Public on GitHub, anyone can
+# download every salon's customer list — thousands of women's names, phone
+# numbers, and the times they will be at a known address.
+#
+# Bots scrape GitHub for exactly this, within minutes of a push.
+# ============================================================================
+
+node_modules/
+.next/
+out/
+build/
+
+.env
+.env.local
+.env*.local
+
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+.DS_Store
+*.log
+npm-debug.log*
+
+supabase/.temp/
+supabase/.branches/
+
+# Never commit a database dump. It is customer PII.
+*.dump
+*.dump.gpg
+*.sql.gpg
