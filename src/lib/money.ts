@@ -1,29 +1,45 @@
 /**
- * Money.
+ * Money.  PKR. That is the only currency.
  *
- * MUDDARRIS LESSON, ENCODED:
- *   'PKR' vs 'pkr' compared as raw strings across modules is how money
- *   silently disappears.
+ * MUDDARRIS LESSON, ENCODED THREE TIMES:
  *
- * There is exactly ONE valid representation and it is uppercase. This is
- * enforced in THREE places:
- *   1. Here, at the type level.
- *   2. In Postgres: `create domain currency_code check (value = upper(value))`
- *      — the database physically refuses 'pkr'.
- *   3. By architecture: no other repo has a database connection, so no other
- *      repo can insert a currency at all.
+ *   1. Type level  — `Currency` is the literal 'PKR'. Not a union. Not a
+ *                    string. There is nothing else to pass.
+ *   2. Runtime     — normalizeCurrency() throws on anything else.
+ *   3. Database    — `create domain currency_code check (value = 'PKR')`.
+ *                    Postgres physically refuses 'pkr', 'usd', 'PKr'.
+ *
+ * WHY NOT KEEP 'USD' AROUND "just in case"?
+ *
+ *   A currency you never use is a code path nobody ever tests. The day you
+ *   finally take a USD payment, you find out which of your fifty money
+ *   calculations quietly assumed PKR — in production, with real money.
+ *
+ *   Widen it deliberately, with tests, on the day you need it. Not before.
  */
-export type Currency = 'PKR' | 'USD';
+export type Currency = 'PKR';
 
-const VALID: readonly Currency[] = ['PKR', 'USD'] as const;
+export const CURRENCY: Currency = 'PKR';
 
+/**
+ * Normalise ONCE, at the edge. Never compare raw currency strings anywhere else.
+ */
 export function normalizeCurrency(raw: string): Currency {
-  const up = raw.trim().toUpperCase() as Currency;
-  if (!VALID.includes(up)) throw new Error(`Unsupported currency: "${raw}"`);
-  return up;
+  const up = raw.trim().toUpperCase();
+  if (up !== 'PKR') {
+    throw new Error(
+      `Unsupported currency: "${raw}". NearAppoint is PKR-only. ` +
+      `Adding a currency means auditing every money calculation in the product — ` +
+      `it is a deliberate project, not a config change.`,
+    );
+  }
+  return 'PKR';
 }
 
-/** Whole rupees. PKR has no practical subunit in this market. */
+/**
+ * Whole rupees. PKR has no practical subunit in this market — nobody prices a
+ * haircut at Rs 1,500.50, and showing ".00" everywhere just adds noise.
+ */
 export function formatPKR(amount: number): string {
   return new Intl.NumberFormat('en-PK', {
     style: 'currency',
