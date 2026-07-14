@@ -36,11 +36,11 @@ export default {
          * for eight hours. The slate is softer and doesn't fight the content.
          */
         shell: {
-          DEFAULT: '#394763',   // sidebar
-          hover:   '#45557A',
-          active:  '#2C3852',
-          border:  '#4A5A7C',
-          muted:   '#A9B3C7',   // sidebar text, inactive
+          DEFAULT: '#2E3132',   // sidebar — charcoal, sampled from the design
+          hover:   '#3A3E3F',
+          active:  '#3A3E3F',
+          border:  '#454949',
+          muted:   '#B4B7B8',   // sidebar text, inactive
         },
         ink:   '#16243E',
         muted: '#64748B',
