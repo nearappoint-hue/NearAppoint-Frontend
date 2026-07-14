@@ -57,9 +57,14 @@ export default function BusinessPage() {
     <>
       {/* ---- cover ---- */}
       <div className="relative h-[300px] bg-warm-low sm:h-[380px]">
-        {b.cover_url && (
-          <Image src={b.cover_url} alt="" fill unoptimized priority className="object-cover" />
-        )}
+        <Image
+          src={b.cover_url ?? '/images/placeholder-cover.webp'}
+          alt=""
+          fill
+          unoptimized={!!b.cover_url}
+          priority
+          className="object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-[#251913]/80 via-[#251913]/25 to-transparent" />
 
         <div className="container relative flex h-full flex-col justify-end pb-8">

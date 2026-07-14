@@ -1,21 +1,11 @@
 'use client';
 import * as React from 'react';
-import {
-  Search, MapPin, Loader2, Scissors, Sparkles, Hand, Flower2, Leaf, Sparkle,
-} from 'lucide-react';
+import { Search, MapPin, Loader2 } from 'lucide-react';
 import { BusinessCard, type BusinessCardData } from '@/components/customer/business-card';
+import { CategoryCarousel } from '@/components/customer/category-carousel';
 import { cn } from '@/lib/utils';
 
 /** The six niches, in order. Hair Salons and Beauty Parlors are live. */
-const CATEGORIES = [
-  { slug: 'hair_salon',       name: 'Hair Salons',       icon: Scissors },
-  { slug: 'beauty_parlor',    name: 'Beauty Parlors',    icon: Sparkles },
-  { slug: 'nail_studio',      name: 'Nail Studios',      icon: Hand,        soon: true },
-  { slug: 'mehndi_studio',    name: 'Mehndi Studios',    icon: Flower2,     soon: true },
-  { slug: 'wellness',         name: 'Wellness Centers',  icon: Leaf,        soon: true },
-  { slug: 'aesthetic_clinic', name: 'Aesthetic Clinics', icon: Sparkle,     soon: true },
-];
-
 export default function CustomerHome() {
   const [q, setQ] = React.useState('');
   const [cat, setCat] = React.useState<string | null>(null);
@@ -100,35 +90,7 @@ export default function CustomerHome() {
         </span>
       </div>
 
-      {/* CATEGORIES — one line, always. This is a six-niche platform, and the
-          six niches should read as one row, not a ragged block that implies
-          some matter more than others. Scrolls horizontally on small screens. */}
-      <div className="-mx-1 mb-12 flex gap-2.5 overflow-x-auto px-1 pb-2
-                      [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {CATEGORIES.map(({ slug, name, icon: Icon, soon }) => (
-          <button
-            key={slug}
-            disabled={soon}
-            onClick={() => setCat(cat === slug ? null : slug)}
-            className={cn(
-              'inline-flex flex-none items-center gap-2 whitespace-nowrap rounded-full border px-5 py-3 text-[0.9rem] transition-all',
-              cat === slug
-                ? 'border-brand bg-brand font-semibold text-white shadow-brand'
-                : soon
-                  ? 'cursor-default border-warm-line/60 bg-white/60 text-warm-faint'
-                  : 'border-warm-line bg-white text-warm-ink hover:border-brand hover:text-brand',
-            )}
-          >
-            <Icon className="size-4 flex-none" />
-            {name}
-            {soon && (
-              <span className="flex-none rounded-full bg-warm-low px-2 py-0.5 text-[0.58rem] font-bold uppercase tracking-wide">
-                Soon
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      <CategoryCarousel active={cat} onPick={setCat} />
 
       {/* results */}
       {error ? (

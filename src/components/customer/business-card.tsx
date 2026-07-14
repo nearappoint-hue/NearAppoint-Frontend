@@ -21,14 +21,17 @@ export function BusinessCard({ b }: { b: BusinessCardData }) {
     <Link href={`/b/${b.slug}`}
       className="group block overflow-hidden rounded-[18px] border border-warm-line/60 bg-white transition-all hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(88,66,55,.12)]">
       <div className="relative aspect-[16/10] bg-warm-low">
-        {b.cover_url ? (
-          <Image src={b.cover_url} alt="" fill unoptimized
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
-        ) : (
-          <div className="grid h-full place-items-center text-warm-faint">
-            <span className="font-display text-[0.82rem]">No photo yet</span>
-          </div>
-        )}
+        {/* A business with no cover gets a warm branded placeholder — never a
+            grey box and never "No photo yet". An empty card looks like a broken
+            listing, and a broken listing makes the whole app look untrustworthy. */}
+        <Image
+          src={b.cover_url ?? '/images/placeholder-cover.webp'}
+          alt=""
+          fill
+          unoptimized={!!b.cover_url}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+        />
 
         {/* "NEW", not "0 stars". A good new salon should be discoverable —
             otherwise supply never onboards. Zero stars reads as "bad". */}
