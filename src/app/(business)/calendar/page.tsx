@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { WalkInDialog } from '@/components/business/walk-in-dialog';
 import { BookingDialog } from '@/components/business/booking-dialog';
 import { AppointmentActions } from '@/components/business/appointment-actions';
+import { BlockTimeDialog } from '@/components/business/block-time-dialog';
 import { Panel } from '@/components/business/panel';
 import { cn } from '@/lib/utils';
 
@@ -107,6 +108,7 @@ export default function CalendarPage() {
 
         {staff.length > 0 && groups.length > 0 && (
           <div className="flex gap-2.5">
+            <BlockTimeDialog staff={staff} onDone={load} />
             <BookingDialog groups={groups} staff={staff} onDone={load} />
             <WalkInDialog groups={groups} staff={staff} onDone={load} />
           </div>

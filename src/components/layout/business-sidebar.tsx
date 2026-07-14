@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   CalendarDays, LayoutDashboard, Users, Scissors, UserCog, Clock,
-  Store, LogOut, Menu, X, Plus, Moon,
+  Store, LogOut, Menu, X, Plus, Moon, CalendarClock, CalendarOff, BarChart3, MessageCircle,
 } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { cn } from '@/lib/utils';
@@ -34,8 +34,12 @@ const NAV: NavItem[] = [
   { href: '/customers',      label: 'Customers', icon: Users },
   { href: '/services',       label: 'Services',  icon: Scissors },
   { href: '/staff',          label: 'Staff',     icon: UserCog },
+  { href: '/staff/schedules', label: 'Schedules', icon: CalendarClock },
+  { href: '/staff/leave',    label: 'Leave',     icon: CalendarOff },
   { href: '/settings/hours', label: 'Hours',     icon: Clock },
   { href: '/settings/special-hours', label: 'Special hours', icon: Moon },
+  { href: '/reports',        label: 'Reports',   icon: BarChart3 },
+  { href: '/settings/reminders', label: 'Reminders', icon: MessageCircle },
   { href: '/settings/profile', label: 'Profile', icon: Store },
 ];
 
