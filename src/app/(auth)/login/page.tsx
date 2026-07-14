@@ -30,6 +30,15 @@ function LoginInner() {
   const [googleLoading, setGoogleLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(oauthError);
 
+  /**
+   * ?force=1 means: "I know I'm signed in, sign me out and let me log in as
+   * someone else." Without this a customer could never reach the business
+   * login, because middleware would bounce them to /home forever.
+   */
+  React.useEffect(() => {
+    if (params.get('force') === '1') void auth.signOut();
+  }, [params]);
+
   const google = async () => {
     setGoogleLoading(true);
     setError(null);

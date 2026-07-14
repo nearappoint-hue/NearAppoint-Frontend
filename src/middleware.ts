@@ -72,8 +72,16 @@ export async function middleware(req: NextRequest) {
 
   const home = type === 'business' ? '/today' : type === 'admin' ? '/admin' : '/home';
 
-  // Already signed in and hitting /login? Send them where they belong.
+  /**
+   * Already signed in and hitting /login? Normally we send them where they
+   * belong — nobody wants to see a login form they don't need.
+   *
+   * BUT: ?force=1 is an escape hatch. Without it, a signed-in customer who
+   * wants to log in as a business is TRAPPED — /login bounces them straight
+   * back and the site looks broken. The page signs them out and shows the form.
+   */
   if (AUTH_ROUTES.some(p => path.startsWith(p))) {
+    if (req.nextUrl.searchParams.get('force') === '1') return res;
     return NextResponse.redirect(new URL(home, req.url));
   }
 
