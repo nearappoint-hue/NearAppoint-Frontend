@@ -45,10 +45,37 @@ export default {
         ink:   '#16243E',
         muted: '#64748B',
         faint: '#94A3B8',
-        warm:  '#FFF9F4',
         soft:  '#F8F9FB',
         line:  '#ECEFF3',
         line2: '#E2E6EC',
+
+        /**
+         * ==================================================================
+         * CUSTOMER SIDE — the WARM palette. Sampled from the design.
+         *
+         * Deliberately different from the business side, which is cool grey
+         * and charcoal. They are doing different jobs:
+         *
+         *   The Business OS is a TOOL. She stares at it for eight hours and
+         *   needs it to get out of the way. Cool, quiet, neutral.
+         *
+         *   The customer app is a SHOPFRONT. It has about four seconds to feel
+         *   trustworthy and inviting. Warm, soft, human.
+         *
+         * Same brand. Same orange. Two different rooms.
+         * ==================================================================
+         */
+        warm: {
+          DEFAULT: '#FFF8F6',   // page background
+          low:     '#FFF1EB',   // tinted surface
+          mid:     '#FFEAE0',
+          high:    '#FCE3D9',
+          ink:     '#251913',   // warm near-black
+          muted:   '#584237',   // warm grey-brown
+          faint:   '#8C7164',   // warm outline
+          line:    '#E0C0B1',   // warm border
+          deep:    '#9D4300',   // deep burnt orange — for text on warm bg
+        },
         // functional — used ONLY for state, never decoration
         ok:    '#0EA47A',
         warn:  '#F59E0B',
