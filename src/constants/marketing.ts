@@ -10,18 +10,18 @@ import {
  * Nine feature cards written as nine <div>s is nine places to fix a typo and
  * nine chances for one to drift. Written as an array, it's one map().
  */
-export interface Category { icon: LucideIcon; name: string; count: string; desc: string; }
+export interface Category { icon: LucideIcon; name: string; desc: string; }
 
 export const CATEGORIES: Category[] = [
-  { icon: Scissors,    name: 'Hair Salons',        count: 'New', desc: 'Cuts, colour, styling, beard & grooming' },
-  { icon: Sparkles,    name: 'Beauty Parlors',     count: 'New', desc: 'Makeup, facials, threading, waxing & bridal' },
-  { icon: Hand,        name: 'Nail Studios',       count: 'New', desc: 'Manicure, pedicure, gel, acrylic & nail art' },
-  { icon: Flower2,     name: 'Mehndi Studios',     count: 'New', desc: 'Bridal, party & occasion mehndi' },
-  { icon: Heart,       name: 'Wellness Centers',   count: 'New', desc: 'Spa, massage, therapy & relaxation' },
+  { icon: Scissors,    name: 'Hair Salons', desc: 'Cuts, colour, styling, beard & grooming' },
+  { icon: Sparkles,    name: 'Beauty Parlors', desc: 'Makeup, facials, threading, waxing & bridal' },
+  { icon: Hand,        name: 'Nail Studios', desc: 'Manicure, pedicure, gel, acrylic & nail art' },
+  { icon: Flower2,     name: 'Mehndi Studios', desc: 'Bridal, party & occasion mehndi' },
+  { icon: Heart,       name: 'Wellness Centers', desc: 'Spa, massage, therapy & relaxation' },
   // Aesthetic Clinics: cosmetic treatments only. Botox, fillers and PRP are
   // NOT offered — they're prescription-only injectables regulated by the PMC.
   // Laser and anti-aging are consultation-first. Enforced in the DB, not here.
-  { icon: Stethoscope, name: 'Aesthetic Clinics',  count: 'New', desc: 'Skin treatments & aesthetic consultations' },
+  { icon: Stethoscope, name: 'Aesthetic Clinics', desc: 'Skin treatments & aesthetic consultations' },
 ];
 
 export const STEPS = [

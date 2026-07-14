@@ -54,17 +54,14 @@ export function Categories() {
         <SectionHead
           pill="Categories"
           title="Find Every Service You Need"
-          subtitle="From a fresh blowout to a dental check-up, NearAppoint connects you with vetted professionals across six essential categories."
+          subtitle="From a fresh cut to bridal mehndi, NearAppoint connects you with vetted businesses across six categories \u2014 with real prices and real availability."
         />
         <div className="grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
-          {CATEGORIES.map(({ icon: Icon, name, count, desc }) => (
+          {CATEGORIES.map(({ icon: Icon, name, desc }) => (
             <Card key={name} interactive>
-              <div className="flex items-start justify-between">
-                <span className="grid size-9 place-items-center rounded-sm bg-brand-tint text-brand">
-                  <Icon className="size-[17px]" />
-                </span>
-                <span className="font-display text-[0.74rem] font-bold text-brand">{count}</span>
-              </div>
+              <span className="grid size-9 place-items-center rounded-sm bg-brand-tint text-brand">
+                <Icon className="size-[17px]" />
+              </span>
               <h3 className="mb-1.5 mt-3">{name}</h3>
               <p className="text-[0.85rem] leading-relaxed text-muted">{desc}</p>
             </Card>

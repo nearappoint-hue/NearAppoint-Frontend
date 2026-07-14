@@ -114,15 +114,15 @@ export function CategoryCarousel({ active, onPick }: {
   const Icon = c.icon;
 
   return (
-    <div className="mb-9">
+    <div className="mb-10">
       <div
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
-        className="group relative overflow-hidden rounded-[18px] bg-warm-low sm:rounded-[22px]"
+        className="group relative overflow-hidden rounded-[20px] border border-warm-line/50 bg-warm-low"
       >
         {/* Slides. All mounted, opacity-crossfaded — so the next banner is
             already decoded and there is no flash of empty box. */}
-        <div className="relative aspect-[16/9] w-full sm:aspect-[3/1] sm:min-h-[240px]">
+        <div className="relative aspect-[3/1] min-h-[190px] w-full">
           {CATEGORIES.map((cat, n) => (
             <button
               key={cat.slug}
@@ -134,49 +134,49 @@ export function CategoryCarousel({ active, onPick }: {
                 n === i ? 'opacity-100' : 'pointer-events-none opacity-0',
               )}
             >
-              {/* NO SCRIM. The banner is finished artwork — washing it out with a
-                  white gradient defeats the point of commissioning it. The text
-                  sits on its own solid panel instead, so the art stays intact. */}
               <Image
                 src={cat.banner}
                 alt=""
                 fill
                 priority={n === 0}
-                sizes="100vw"
+                sizes="(max-width: 768px) 100vw, 1200px"
                 className="object-cover"
               />
+
+              {/* Left-to-right scrim. The banners were drawn with empty space on
+                  the left for exactly this — the text sits in the quiet third. */}
+              <div className="absolute inset-0 bg-gradient-to-r from-warm-low via-warm-low/85 to-transparent" />
             </button>
           ))}
 
-          {/* The text sits on its OWN card, floating over the art. The banner
-              stays fully visible; the copy stays fully readable. Neither has to
-              compromise for the other. */}
-          <div className="pointer-events-none absolute inset-0 flex items-center p-4 sm:p-7">
-            <div className="pointer-events-auto max-w-[300px] rounded-[16px] bg-white/92 p-5 shadow-[0_6px_24px_rgba(88,66,55,.12)] backdrop-blur-sm sm:max-w-[340px] sm:p-6">
-              <span className="mb-2.5 inline-flex items-center gap-1.5 rounded-full bg-warm-low px-2.5 py-1 font-display text-[0.62rem] font-bold uppercase tracking-[0.08em] text-brand">
-                <Icon className="size-3" />
+          {/* Content sits above the slides so it doesn't fade with them —
+              the text stays crisp while the art crossfades behind it. */}
+          <div className="pointer-events-none absolute inset-0 flex flex-col justify-center p-7 sm:p-10">
+            <div className="max-w-[46%] min-w-[240px]">
+              <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 font-display text-[0.68rem] font-bold uppercase tracking-[0.08em] text-brand backdrop-blur-sm">
+                <Icon className="size-3.5" />
                 Book now
               </span>
 
-              <h2 className="font-display text-[clamp(1.15rem,2.4vw,1.7rem)] font-extrabold leading-tight tracking-[-0.02em] text-warm-ink">
+              <h2 className="font-display text-[clamp(1.4rem,3vw,2.1rem)] font-extrabold leading-tight tracking-[-0.02em] text-warm-ink">
                 {c.name}
               </h2>
 
-              <p className="mt-1.5 text-[0.85rem] leading-snug text-warm-muted">
+              <p className="mt-2 max-w-[32ch] text-[0.92rem] leading-snug text-warm-muted">
                 {c.tagline}
               </p>
 
-              <button
-                onClick={() => onPick(active === c.slug ? null : c.slug)}
+              <span
                 className={cn(
-                  'mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-display text-[0.85rem] font-bold transition-colors',
+                  'pointer-events-auto mt-4 inline-flex cursor-pointer items-center gap-2 rounded-full px-5 py-2.5 font-display text-[0.88rem] font-bold transition-colors',
                   active === c.slug
                     ? 'bg-warm-ink text-white'
                     : 'bg-brand text-white hover:bg-brand-hover',
                 )}
+                onClick={() => onPick(active === c.slug ? null : c.slug)}
               >
                 {active === c.slug ? 'Showing these' : 'Explore'}
-              </button>
+              </span>
             </div>
           </div>
         </div>

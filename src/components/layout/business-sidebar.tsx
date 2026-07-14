@@ -25,7 +25,6 @@ interface NavItem {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  soon?: boolean;
 }
 
 const NAV: NavItem[] = [
@@ -95,29 +94,22 @@ export function BusinessSidebar({ businessName }: { businessName: string }) {
         {/* Overflow scrolls, but no visible scrollbar. A permanent grey bar
             down the sidebar is noise she stares at for eight hours. */}
         <nav className="flex-1 overflow-y-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {NAV.map(({ href, label, icon: Icon, soon }) => {
+          {NAV.map(({ href, label, icon: Icon }) => {
             const active = path === href || path.startsWith(href + '/');
             return (
               <Link
                 key={href}
-                href={soon ? '#' : href}
-                onClick={(e) => { if (soon) e.preventDefault(); setOpen(false); }}
+                href={href}
+                onClick={() => setOpen(false)}
                 className={cn(
                   'flex items-center gap-3.5 border-l-4 px-5 py-3 font-display text-[0.94rem] font-semibold transition-colors',
                   active
                     ? 'border-brand bg-shell-active text-brand'
-                    : soon
-                      ? 'cursor-default border-transparent text-shell-muted/45'
-                      : 'border-transparent text-shell-muted hover:bg-shell-hover hover:text-white',
+                    : 'border-transparent text-shell-muted hover:bg-shell-hover hover:text-white',
                 )}
               >
                 <Icon className="size-[19px] flex-none" />
                 {label}
-                {soon && (
-                  <span className="ml-auto rounded bg-white/10 px-1.5 py-0.5 text-[0.52rem] font-bold uppercase tracking-wide">
-                    Soon
-                  </span>
-                )}
               </Link>
             );
           })}
