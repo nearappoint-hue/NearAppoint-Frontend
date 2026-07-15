@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu, X, ChevronRight, LogOut } from 'lucide-react';
@@ -15,6 +16,9 @@ export function Nav() {
   const [stuck, setStuck] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [signedIn, setSignedIn] = React.useState<boolean | null>(null);
+  // The mobile menu is portalled to <body>, which only exists on the client.
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
 
   React.useEffect(() => {
     const onScroll = () => setStuck(window.scrollY > 8);
@@ -102,7 +106,8 @@ export function Nav() {
       </div>
     </nav>
 
-    <AnimatePresence>
+    {mounted && createPortal(
+      <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
@@ -133,7 +138,9 @@ export function Nav() {
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body,
+    )}
     </>
   );
 }
