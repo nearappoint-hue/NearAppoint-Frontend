@@ -1,6 +1,7 @@
 import 'server-only';
 import { db } from '@/server/database/client';
 import { ApiError, isExclusionViolation } from '@/server/lib/errors';
+import { EmailService } from '@/server/services/email.service';
 
 /**
  * THE CUSTOMER SIDE.
@@ -150,6 +151,20 @@ export class PublicService {
     }
 
     const row = (data as any[])?.[0];
+
+    /**
+     * The confirmation email. FIRE AND FORGET.
+     *
+     * Deliberately NOT awaited: if Resend has a bad day, the BOOKING STILL
+     * EXISTS. We never fail a confirmed appointment because an email server
+     * hiccupped — she'd see an error, try again, and hit the double-booking
+     * constraint on her own booking.
+     *
+     * The email is a row in the outbox either way, so a failure is visible.
+     */
+    void EmailService.bookingConfirmed(row.out_appointment_id)
+      .catch(e => console.error('[email:booking_confirmed]', e));
+
     return { id: row.out_appointment_id, reference: row.out_reference };
   }
 

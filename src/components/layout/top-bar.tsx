@@ -20,6 +20,7 @@ const TITLES: Record<string, string> = {
   '/settings/special-hours': 'Special Hours',
   '/settings/profile':       'Business Profile',
   '/reports':                'Reports',
+  '/reviews':                'Reviews',
   '/settings/reminders':     'WhatsApp Reminders',
   '/staff/schedules':        'Staff Schedules',
   '/staff/leave':            'Leave',

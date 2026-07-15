@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
 import { CustomerNav } from '@/components/customer/customer-nav';
+import { ReviewsSection } from '@/components/customer/reviews-section';
 import { formatPKR } from '@/lib/money';
 import { formatAsTyped, digitsOnly, isValidPkMobile } from '@/lib/phone';
 import { auth } from '@/lib/auth';
@@ -236,6 +237,10 @@ export default function BusinessPage() {
               ))}
             </div>
           )}
+
+          {/* Reviews. Every one from someone who actually went — the database
+              refuses a review without a completed appointment. */}
+          <ReviewsSection slug={b.slug} businessName={b.name} />
         </div>
 
         {/* ---- sticky rail ---- */}

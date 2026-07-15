@@ -16,6 +16,17 @@ const schema = z.object({
   SUPABASE_ANON_KEY:         z.string().min(20),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
 
+  /**
+   * TRANSACTIONAL EMAIL (Resend).
+   *
+   * Optional in the schema — but without it a customer books and receives
+   * NOTHING. She has to trust a screen she saw for two seconds and remember a
+   * time she was told once. That is not a missing feature; it is a broken
+   * booking. Set this before you show the product to anyone.
+   */
+  RESEND_API_KEY:            z.string().optional(),
+  EMAIL_FROM:                z.string().optional(),
+
   SAFEPAY_API_KEY:           z.string().optional(),
   SAFEPAY_SECRET_KEY:        z.string().optional(),
   SAFEPAY_WEBHOOK_SECRET:    z.string().optional(),

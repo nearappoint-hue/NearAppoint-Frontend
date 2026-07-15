@@ -5,6 +5,8 @@ import {
   Calendar, MapPin, Clock, Loader2, Phone, Navigation, X, Check,
 } from 'lucide-react';
 import { CustomerNav } from '@/components/customer/customer-nav';
+import { ReviewDialog } from '@/components/customer/review-dialog';
+import { Star } from 'lucide-react';
 import { formatPKR } from '@/lib/money';
 import { cn } from '@/lib/utils';
 
@@ -21,13 +23,30 @@ interface Booking {
   can_cancel: boolean;
 }
 
+interface Pending {
+  appointment_id: string;
+  business_id: string;
+  business_name: string;
+  business_slug: string;
+  cover_url: string | null;
+  completed_at: string;
+  services: string[];
+  staff_id: string | null;
+  staff_name: string | null;
+}
+
 export default function MyBookings() {
   const [rows, setRows] = React.useState<Booking[] | null>(null);
+  const [pending, setPending] = React.useState<Pending[]>([]);
+  const [reviewing, setReviewing] = React.useState<Pending | null>(null);
 
   const load = React.useCallback(async () => {
-    const r = await fetch('/api/v1/me/bookings');
-    const j = await r.json();
-    setRows(j.data ?? []);
+    const [b, p] = await Promise.all([
+      fetch('/api/v1/me/bookings').then(r => r.json()),
+      fetch('/api/v1/reviews/pending').then(r => r.json()).catch(() => ({ data: [] })),
+    ]);
+    setRows(b.data ?? []);
+    setPending(p.data ?? []);
   }, []);
 
   React.useEffect(() => { void load(); }, [load]);
@@ -49,6 +68,37 @@ export default function MyBookings() {
       <CustomerNav />
 
       <div className="container py-10 lg:py-14">
+
+        {/* THE REVIEW PROMPT.
+            Asked HERE, where she came to look at her bookings anyway — not in a
+            push notification she'll ignore. One tap, ten seconds, done. */}
+        {pending.length > 0 && (
+          <div className="mb-8 rounded-[18px] border border-brand/25 bg-warm-low p-5 sm:p-6">
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="grid size-11 flex-none place-items-center rounded-full bg-white text-brand">
+                <Star className="size-5 fill-brand" />
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <p className="font-display text-[1.05rem] font-bold text-warm-ink">
+                  How was {pending[0]!.business_name}?
+                </p>
+                <p className="mt-0.5 text-[0.88rem] leading-relaxed text-warm-muted">
+                  Ten seconds, and it&apos;s the only thing that helps the next person
+                  choose well.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setReviewing(pending[0]!)}
+                className="flex-none rounded-full bg-brand px-5 py-2.5 font-display text-[0.88rem] font-bold text-white shadow-brand transition-colors hover:bg-brand-hover"
+              >
+                Leave a review
+              </button>
+            </div>
+          </div>
+        )}
+
       <span className="inline-flex items-center gap-1.5 rounded-full bg-warm-low px-3.5 py-1.5 font-display text-[0.78rem] font-bold text-brand">
         Your bookings
       </span>
@@ -95,6 +145,14 @@ export default function MyBookings() {
           </>
         )}
       </div>
+
+      {reviewing && (
+        <ReviewDialog
+          pending={reviewing}
+          onDone={async () => { setReviewing(null); await load(); }}
+          onSkip={() => setReviewing(null)}
+        />
+      )}
     </>
   );
 }
