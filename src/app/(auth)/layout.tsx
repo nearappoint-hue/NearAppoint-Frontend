@@ -4,7 +4,7 @@ import { Pill } from '@/components/ui/pill';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid min-h-screen lg:grid-cols-[1fr_42%]">
+    <div className="grid min-h-[100dvh] lg:grid-cols-[1fr_42%]">
       <main className="flex flex-col bg-white px-6 pb-9 pt-7">
         <Logo />
         <div className="flex flex-1 items-center justify-center">

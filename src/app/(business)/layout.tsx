@@ -22,7 +22,7 @@ export default async function BusinessLayout({ children }: { children: React.Rea
     .maybeSingle();
 
   return (
-    <div className="min-h-screen bg-soft lg:pl-[260px]">
+    <div className="min-h-[100dvh] bg-soft lg:pl-[260px]">
       <BusinessSidebar businessName={business?.display_name ?? 'Your business'} />
       <TopBar ownerName={account.fullName ?? 'Owner'} />
       {/* Full width. She's on a wide monitor at a counter; boxing the content

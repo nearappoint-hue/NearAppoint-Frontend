@@ -9,7 +9,7 @@ import { CustomerFooter } from '@/components/customer/customer-footer';
  */
 export default function CustomerLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-warm">
+    <div className="flex min-h-[100dvh] flex-col bg-warm">
       <main className="flex-1">{children}</main>
       <CustomerFooter />
     </div>
