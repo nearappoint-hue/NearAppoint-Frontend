@@ -6,10 +6,10 @@ import { Logo } from '@/components/ui/logo';
 import { Input } from '@/components/ui/input';
 
 const COLUMNS = [
-  { title: 'Company',  links: [['About Us', '#benefits'], ['Careers', '#'], ['Press', '#'], ['Contact', '#cta']] },
-  { title: 'Product',  links: [['How It Works', '#features'], ['Features', '#features'], ['Pricing', '#faq'], ['Mobile App', '#']] },
+  { title: 'Company',  links: [['About Us', '#benefits'], ['Careers', '/careers'], ['Press', '/press'], ['Contact', '#cta']] },
+  { title: 'Product',  links: [['How It Works', '#features'], ['Features', '#features'], ['Pricing', '#faq'], ['Mobile App', '/mobile']] },
   { title: 'Business', links: [['Register Business', '/signup'], ['Business Dashboard', '/login'], ['Analytics', '#business'], ['Pricing Plans', '#faq']] },
-  { title: 'Legal',    links: [['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['Cookie Policy', '#'], ['Refund Policy', '#']] },
+  { title: 'Legal',    links: [['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['Cookie Policy', '/cookies'], ['Refund Policy', '/refunds']] },
 ] as const;
 
 export function Footer() {
